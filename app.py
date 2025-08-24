@@ -24,6 +24,15 @@ CORS(app)  # Enable CORS for WordPress integration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Routes Added 
+@app.route('/')
+def index():
+    return jsonify({"message": "LLM Alignment Evaluation API is running"}), 200
+
+@app.route('/health-check')
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+    
 @dataclass
 class LLMConfig:
     name: str
