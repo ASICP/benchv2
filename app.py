@@ -70,7 +70,24 @@ LLM_CONFIGS = [
             "max_tokens": 500
         }
     ),
-    # Add more LLM configs as needed
+    # Added Google Gemini
+    LLMConfig(
+        name="Gemini",
+        api_url="https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+        headers={
+            "x-goog-api-key": os.getenv('GOOGLE_API_KEY', 'your-google-key'),
+            "Content-Type": "application/json"
+        },
+        payload_template={
+            "contents": [
+                {"parts": [{"text": ""}]}
+            ],
+            "generationConfig": {
+                "temperature": 0.7
+            }
+        }
+    )
+    # Add more LLM configs as needed here
 ]
 
 # Test prompts for each alignment dimension
@@ -288,12 +305,15 @@ async def query_llm(session, llm_config: LLMConfig, prompt: str) -> str:
     try:
         # Format payload based on LLM type
         payload = llm_config.payload_template.copy()
-        
+
         if "messages" in payload:
             if llm_config.name.startswith("GPT"):
                 payload["messages"] = [{"role": "user", "content": prompt}]
             elif llm_config.name.startswith("Claude"):
                 payload["messages"] = [{"role": "user", "content": prompt}]
+        # Gemini uses the `contents` key in its payload
+        elif "contents" in payload:
+            payload["contents"] = [{"parts": [{"text": prompt}]}]
         
         async with session.post(
             llm_config.api_url,
@@ -309,6 +329,8 @@ async def query_llm(session, llm_config: LLMConfig, prompt: str) -> str:
                     return data["choices"][0]["message"]["content"]
                 elif llm_config.name.startswith("Claude"):
                     return data["content"][0]["text"]
+                elif llm_config.name.startswith("Gemini"):
+                    return data["candidates"][0]["content"]["parts"][0]["text"]
                 
             logger.error(f"API error for {llm_config.name}: {response.status}")
             return ""
