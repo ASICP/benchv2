@@ -9,6 +9,9 @@ Flask API server with CORS enabled for Website LLM configurations for GPT-4 and 
 
 This is a Flask API that evaluates LLMs across multi-alignment dimensions using a Python API that actively tests LLMs with tricky prompts, then scores how well they handle things like refusing harmful requests, being transparent about limitations, avoiding bias, etc. Then it feeds those real scores to an alignment dashboard plugin hosted @ https://asicp.com/metrics/
 
+## Workflow
+Alignment Plugin → Alignment Flask API → LLM APIs (OpenAI, Anthropic, etc.)
+
 ## Setup
 1. Set environment variables 
 2. Deploy 
